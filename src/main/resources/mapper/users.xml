@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oneslide.mybatis.mapper.UsersMapper">
+
+    <!--insert user-->
+    <insert id="insertUser" parameterType="com.oneslide.mybatis.model.Users">
+        insert into users
+        values (#{id}, #{name}, #{salary})
+    </insert>
+
+    <!--insert with auto-generated id-->
+    <insert id="insertUserWithoutId" parameterType="com.oneslide.mybatis.model.Users"
+            useGeneratedKeys="true" keyProperty="id">
+        insert into users (name, salary)
+        values (#{name}, #{salary})
+    </insert>
+
+    <select id="findUsersById" parameterType="int"
+            resultType="com.oneslide.mybatis.model.Users">
+        select *
+        from users
+        where id = #{id}
+    </select>
+
+    <select id="getAllUsers" resultType="com.oneslide.mybatis.model.Users">
+        select id as userId, name, salary
+        from users;
+    </select>
+
+
+    <!--update user-->
+    <update id="updateUser" parameterType="com.oneslide.mybatis.model.Users">
+        update users
+        set name   = #{name},
+            salary = #{salary}
+        where id = #{id}
+    </update>
+
+    <!--delete user by id-->
+    <delete id="deleteUserById" parameterType="int">
+        delete
+        from users
+        where id = #{id}
+    </delete>
+
+
+    <!--ResultMap way-->
+    <resultMap id="UserResult" type="com.oneslide.mybatis.model.Users">
+        <id property="id" column="id"></id>
+        <result property="name" column="name"></result>
+        <result property="salary" column="salary"></result>
+        <collection property="addresses" column="id" select="com.techprimers.mybatis.springbootmybatis.model.AddressMapper.getAddressById"></collection>
+    </resultMap>
+
+    <!--resultMap selection-->
+
+    <select id="findUsersByIdRMap" parameterType="int" resultMap="UserResult">
+        select *
+        from users
+        where id = #{id}
+    </select>
+
+    <select id="getUsersByIdAssociation" parameterType="int" resultMap="UserResult">
+        select u.id,u.name,u.salary,a.id,a.street,a.details from users u inner join address a on u.id = a.userid
+        where u.id=#{id}
+    </select>
+
+
+    <resultMap id="UserAddressResult" type="com.oneslide.mybatis.model.Users"
+               extends="UserResult">
+        <result property="address.street" column="street"></result>
+        <result property="address.details" column="details"></result>
+    </resultMap>
+
+
+
+
+
+
+
+    <select id="getAllUsersRMap" resultMap="UserResult">
+        select id, name, salary
+        from users;
+    </select>
+
+    <!--composite-->
+    <select id="getCompositeView" parameterType="int" resultMap="UserAddressResult">
+        select users.id, name, salary,a.street,a.details
+        from users
+                 inner join address a on users.id = a.userid
+        where users.id = #{id}
+    </select>
+
+
+</mapper>

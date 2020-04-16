@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oneslide.mybatis.mapper.AddressMapper">
+    <!--using association-->
+    <resultMap id="AddressResult" type="com.oneslide.mybatis.model.Address">
+        <id property="id" column="id"></id>
+        <result property="street" column="street"></result>
+        <result property="details" column="details"></result>
+    </resultMap>
+
+    <select id="getAddressById" parameterType="int" resultMap="AddressResult">
+        select id, street, details
+        from address
+        where userid = #{userid}
+    </select>
+
+    <select id="elasticSearchAddress" parameterType="hashmap"
+            resultMap="AddressResult">
+        select * from address where id=#{id}
+        <if test="street != null">
+            and street like #{street}
+        </if>
+    </select>
+
+
+    <select id="elasticSearchAddressChoose" parameterType="hashmap"
+            resultMap="AddressResult">
+        select * from address where
+        <choose>
+            <when test="searchType == 'street'">
+                street like #{street}
+            </when>
+            <when test="searchType == 'details'">
+                details like #{details}
+            </when>
+            <otherwise>
+                true = true
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="elasticSearchAddressWhere" parameterType="hashmap"
+            resultMap="AddressResult">
+        select * from address
+        <where>
+            <if test="street != null">
+                street=#{street}
+            </if>
+            <if test="details != null">
+                and details=#{details}
+            </if>
+        </where>
+    </select>
+
+    <select id="elasticSearchAddressForeach" parameterType="hashmap"
+            resultMap="AddressResult">
+        select * from address where id in
+        <foreach collection="idList" item="id" open="(" close=")"
+                 separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
