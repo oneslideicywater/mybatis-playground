@@ -1,0 +1,6 @@
+= How to generate mapper,xml,model?
+
+[source,bash]
+----
+mvn mybatis-generator:generate
+----
